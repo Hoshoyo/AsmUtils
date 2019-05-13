@@ -9,14 +9,14 @@
 global aes_encrypt
 global aes_decrypt
 
-section .data
-state: db 'Two One Nine Two'
-key:   db 'Thats my Kung Fu'
-
 section .text
 
+; RDI = uint8_t block[16]
+; RSI = uint8_t key[16]
+; RDX = uint8_t result[16]
+
 aes_calculate_keys:
-    movdqu xmm1, [key]
+    movdqu xmm1, [rsi]
     ; push xmm1 (first key)
     sub rsp, 16
     movdqu [rsp], xmm1
@@ -207,7 +207,10 @@ aes_encrypt:
     ; Keys are returned in the registers xmm1-xmm11
     call aes_calculate_keys
 
-    movdqu xmm0, [state]
+    xor rax, rax
+start_aes_enc:
+    ; Move to xmm0 the block to be encrypted
+    movdqu xmm0, [rdi + rax]
 
     pxor xmm0, xmm1         ; Round 0 (whitening)
     aesenc xmm0, xmm2       ; Round 1
@@ -222,7 +225,11 @@ aes_encrypt:
     aesenclast xmm0, xmm11  ; Round 10
 
     ; End -> write the result in the rdx pointer
-    movdqu [rdx], xmm0
+    movdqu [rdx + rax], xmm0
+
+    add rax, 16
+    loop start_aes_enc
+
     ret
 
 ; void aes_decrypt(uint8_t* block, uint8_t* key, uint8_t* result);
@@ -244,6 +251,11 @@ aes_decrypt:
     aesimc xmm9, xmm9
     aesimc xmm10, xmm10
 
+    xor rax, rax
+start_aes_dec:
+    ; Move to xmm0 the block to be decrypted
+    movdqu xmm0, [rdi + rax]
+
     ; Reverse key order, since it is decryption
     pxor xmm0, xmm11        ; Round 0 (whitening)
     aesdec xmm0, xmm10      ; Round 1
@@ -258,5 +270,9 @@ aes_decrypt:
     aesdeclast xmm0, xmm1   ; Round 10
 
     ; End -> write the result in the rdx pointer
-    movdqu [rdx], xmm0
+    movdqu [rdx + rax], xmm0
+
+    add rax, 16
+    loop start_aes_dec
+
     ret
