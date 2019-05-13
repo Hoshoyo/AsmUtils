@@ -1,0 +1,236 @@
+global aes_enc
+
+section .data
+state: db 'Two One Nine Two'
+key:   db 'Thats my Kung Fu'
+
+section .text
+aes_enc:
+aes_calculate_keys:
+    movdqu xmm1, [key]
+    ; push xmm1 (first key)
+    sub rsp, 16
+    movdqu [rsp], xmm1
+
+    aeskeygenassist xmm2, xmm1, 0x1
+    ; We only keep the last double word SubByte(RotByte(xmm2[3])) Rcon
+    pshufd xmm2, xmm2, 0xff
+    
+    movdqa xmm3, xmm1
+    pslldq xmm3, 0x4    ; W[i1] goes to W[i] place
+    pxor xmm1, xmm3     ; xor all W[i] with W[i1]
+
+    pslldq xmm3, 0x4    ; W[i2] goes to W[i] place
+    pxor xmm1, xmm3     ; xor all W[i] with W[i2]
+
+    pslldq xmm3, 0x4    ; W[i3] goes to W[i] place
+    pxor xmm1, xmm3     ; xor all W[i] with W[i3]
+
+    pxor xmm1, xmm2
+
+    ; push xmm1
+    sub rsp, 16
+    movdqu [rsp], xmm1
+
+    aeskeygenassist xmm2, xmm1, 0x2
+    pshufd xmm2, xmm2, 0xff
+    movdqa xmm3, xmm1
+    pslldq xmm3, 0x4
+    pxor xmm1, xmm3
+    pslldq xmm3, 0x4
+    pxor xmm1, xmm3
+    pslldq xmm3, 0x4
+    pxor xmm1, xmm3
+    pxor xmm1, xmm2
+
+    ; push xmm1
+    sub rsp, 16
+    movdqu [rsp], xmm1
+
+    aeskeygenassist xmm2, xmm1, 0x4
+    pshufd xmm2, xmm2, 0xff
+    movdqa xmm3, xmm1
+    pslldq xmm3, 0x4
+    pxor xmm1, xmm3
+    pslldq xmm3, 0x4
+    pxor xmm1, xmm3
+    pslldq xmm3, 0x4
+    pxor xmm1, xmm3
+    pxor xmm1, xmm2
+
+    ; push xmm1
+    sub rsp, 16
+    movdqu [rsp], xmm1
+
+    aeskeygenassist xmm2, xmm1, 0x8
+    pshufd xmm2, xmm2, 0xff
+    movdqa xmm3, xmm1
+    pslldq xmm3, 0x4
+    pxor xmm1, xmm3
+    pslldq xmm3, 0x4
+    pxor xmm1, xmm3
+    pslldq xmm3, 0x4
+    pxor xmm1, xmm3
+    pxor xmm1, xmm2
+
+    ; push xmm1
+    sub rsp, 16
+    movdqu [rsp], xmm1
+
+    aeskeygenassist xmm2, xmm1, 0x10
+    pshufd xmm2, xmm2, 0xff
+    movdqa xmm3, xmm1
+    pslldq xmm3, 0x4
+    pxor xmm1, xmm3
+    pslldq xmm3, 0x4
+    pxor xmm1, xmm3
+    pslldq xmm3, 0x4
+    pxor xmm1, xmm3
+    pxor xmm1, xmm2
+
+    ; push xmm1
+    sub rsp, 16
+    movdqu [rsp], xmm1
+
+    aeskeygenassist xmm2, xmm1, 0x20
+    pshufd xmm2, xmm2, 0xff
+    movdqa xmm3, xmm1
+    pslldq xmm3, 0x4
+    pxor xmm1, xmm3
+    pslldq xmm3, 0x4
+    pxor xmm1, xmm3
+    pslldq xmm3, 0x4
+    pxor xmm1, xmm3
+    pxor xmm1, xmm2
+
+    ; push xmm1
+    sub rsp, 16
+    movdqu [rsp], xmm1
+
+    aeskeygenassist xmm2, xmm1, 0x40
+    pshufd xmm2, xmm2, 0xff
+    movdqa xmm3, xmm1
+    pslldq xmm3, 0x4
+    pxor xmm1, xmm3
+    pslldq xmm3, 0x4
+    pxor xmm1, xmm3
+    pslldq xmm3, 0x4
+    pxor xmm1, xmm3
+    pxor xmm1, xmm2
+
+    ; push xmm1
+    sub rsp, 16
+    movdqu [rsp], xmm1
+
+    aeskeygenassist xmm2, xmm1, 0x80
+    pshufd xmm2, xmm2, 0xff
+    
+    movdqa xmm3, xmm1
+    pslldq xmm3, 0x4
+    pxor xmm1, xmm3
+    pslldq xmm3, 0x4
+    pxor xmm1, xmm3
+    pslldq xmm3, 0x4
+    pxor xmm1, xmm3
+    pxor xmm1, xmm2
+
+    ; push xmm1
+    sub rsp, 16
+    movdqu [rsp], xmm1
+
+    aeskeygenassist xmm2, xmm1, 0x1b
+    pshufd xmm2, xmm2, 0xff
+    movdqa xmm3, xmm1
+    pslldq xmm3, 0x4
+    pxor xmm1, xmm3
+    pslldq xmm3, 0x4
+    pxor xmm1, xmm3
+    pslldq xmm3, 0x4
+    pxor xmm1, xmm3
+    pxor xmm1, xmm2
+
+    ; push xmm1
+    sub rsp, 16
+    movdqu [rsp], xmm1
+
+    aeskeygenassist xmm2, xmm1, 0x36
+    pshufd xmm2, xmm2, 0xff
+    movdqa xmm3, xmm1
+    pslldq xmm3, 0x4
+    pxor xmm1, xmm3
+    pslldq xmm3, 0x4
+    pxor xmm1, xmm3
+    pslldq xmm3, 0x4
+    pxor xmm1, xmm3
+    pxor xmm1, xmm2
+
+    movdqu xmm11, xmm1
+
+    ; Pop
+    movdqu xmm10, [rsp]
+    add rsp, 16
+    movdqu xmm9, [rsp]
+    add rsp, 16
+    movdqu xmm8, [rsp]
+    add rsp, 16
+    movdqu xmm7, [rsp]
+    add rsp, 16
+    movdqu xmm6, [rsp]
+    add rsp, 16
+    movdqu xmm5, [rsp]
+    add rsp, 16
+    movdqu xmm4, [rsp]
+    add rsp, 16
+    movdqu xmm3, [rsp]
+    add rsp, 16
+    movdqu xmm2, [rsp]
+    add rsp, 16
+    movdqu xmm1, [rsp]
+    add rsp, 16
+
+    ; All the round keys are in xmm1-xmm10
+
+    ; Encrypt
+    movdqu xmm0, [state]
+
+    pxor xmm0, xmm1         ; Round 0 (whitening)
+    aesenc xmm0, xmm2       ; Round 1
+    aesenc xmm0, xmm3       ; Round 2
+    aesenc xmm0, xmm4       ; Round 3
+    aesenc xmm0, xmm5       ; Round 4
+    aesenc xmm0, xmm6       ; Round 5
+    aesenc xmm0, xmm7       ; Round 6
+    aesenc xmm0, xmm8       ; Round 7
+    aesenc xmm0, xmm9       ; Round 8
+    aesenc xmm0, xmm10      ; Round 9
+    aesenclast xmm0, xmm11  ; Round 1
+
+    ; Decrypt
+    ; apply inverse MixColumns to all the keys
+    ; scheduled for encryption, except first and last ones
+
+    aesimc xmm2, xmm2
+    aesimc xmm3, xmm3
+    aesimc xmm4, xmm4
+    aesimc xmm5, xmm5
+    aesimc xmm6, xmm6
+    aesimc xmm7, xmm7
+    aesimc xmm8, xmm8
+    aesimc xmm9, xmm9
+    aesimc xmm10, xmm10
+
+    pxor xmm0, xmm11        ; Round 0 (whitening)
+    aesdec xmm0, xmm10      ; Round 1
+    aesdec xmm0, xmm9       ; Round 2
+    aesdec xmm0, xmm8       ; Round 3
+    aesdec xmm0, xmm7       ; Round 4
+    aesdec xmm0, xmm6       ; Round 5
+    aesdec xmm0, xmm5       ; Round 6
+    aesdec xmm0, xmm4       ; Round 7
+    aesdec xmm0, xmm3       ; Round 8
+    aesdec xmm0, xmm2       ; Round 9
+    aesdeclast xmm0, xmm1   ; Round 10
+
+    ; End
+    movdqu [rdi], xmm0
+    ret
