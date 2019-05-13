@@ -1,11 +1,20 @@
-global aes_enc
+; Arguments in the x64-86 calling convention for linux (in order):
+; RDI
+; RSI
+; RDX
+; RCX
+; R8
+; R9
+
+global aes_encrypt
+global aes_decrypt
 
 section .data
 state: db 'Two One Nine Two'
 key:   db 'Thats my Kung Fu'
 
 section .text
-aes_enc:
+
 aes_calculate_keys:
     movdqu xmm1, [key]
     ; push xmm1 (first key)
@@ -188,9 +197,16 @@ aes_calculate_keys:
     movdqu xmm1, [rsp]
     add rsp, 16
 
-    ; All the round keys are in xmm1-xmm10
+    ; keys are given in the registers xmm1-xmm11
+    ret
 
+; void aes_encrypt(uint8_t* block, uint8_t* key, uint8_t* result);
+aes_encrypt:
     ; Encrypt
+
+    ; Keys are returned in the registers xmm1-xmm11
+    call aes_calculate_keys
+
     movdqu xmm0, [state]
 
     pxor xmm0, xmm1         ; Round 0 (whitening)
@@ -203,12 +219,21 @@ aes_calculate_keys:
     aesenc xmm0, xmm8       ; Round 7
     aesenc xmm0, xmm9       ; Round 8
     aesenc xmm0, xmm10      ; Round 9
-    aesenclast xmm0, xmm11  ; Round 1
+    aesenclast xmm0, xmm11  ; Round 10
 
+    ; End -> write the result in the rdx pointer
+    movdqu [rdx], xmm0
+    ret
+
+; void aes_decrypt(uint8_t* block, uint8_t* key, uint8_t* result);
+aes_decrypt:
     ; Decrypt
-    ; apply inverse MixColumns to all the keys
-    ; scheduled for encryption, except first and last ones
 
+    ; Keys are returned in the registers xmm1-xmm11
+    call aes_calculate_keys
+
+    ; Apply inverse MixColumns to all the keys
+    ; scheduled for encryption, except first and last ones
     aesimc xmm2, xmm2
     aesimc xmm3, xmm3
     aesimc xmm4, xmm4
@@ -219,6 +244,7 @@ aes_calculate_keys:
     aesimc xmm9, xmm9
     aesimc xmm10, xmm10
 
+    ; Reverse key order, since it is decryption
     pxor xmm0, xmm11        ; Round 0 (whitening)
     aesdec xmm0, xmm10      ; Round 1
     aesdec xmm0, xmm9       ; Round 2
@@ -231,6 +257,6 @@ aes_calculate_keys:
     aesdec xmm0, xmm2       ; Round 9
     aesdeclast xmm0, xmm1   ; Round 10
 
-    ; End
-    movdqu [rdi], xmm0
+    ; End -> write the result in the rdx pointer
+    movdqu [rdx], xmm0
     ret
