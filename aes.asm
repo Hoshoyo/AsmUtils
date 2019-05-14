@@ -6,8 +6,8 @@
 ; R8
 ; R9
 
-global aes_encrypt
-global aes_decrypt
+global aes_128_encrypt
+global aes_128_decrypt
 
 section .text
 
@@ -201,7 +201,7 @@ aes_calculate_keys:
     ret
 
 ; void aes_encrypt(uint8_t* block, uint8_t* key, uint8_t* result);
-aes_encrypt:
+aes_128_encrypt:
     ; Encrypt
 
     ; Keys are returned in the registers xmm1-xmm11
@@ -233,7 +233,7 @@ start_aes_enc:
     ret
 
 ; void aes_decrypt(uint8_t* block, uint8_t* key, uint8_t* result);
-aes_decrypt:
+aes_128_decrypt:
     ; Decrypt
 
     ; Keys are returned in the registers xmm1-xmm11
