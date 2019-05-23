@@ -1,3 +1,4 @@
 all:
 	nasm -felf64 aes.asm
-	gcc -g aes.c aes.o ../random/random.o -o aes
+	nasm -felf64 clock.asm
+	gcc -g aes.c aes.o clock.o -o aes

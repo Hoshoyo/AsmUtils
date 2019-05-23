@@ -8,7 +8,6 @@ extern void aes_128_decrypt(uint8_t* block, uint8_t key[16], uint8_t* result, in
 #define BLOCK_SIZE 32
 int main() {
     uint8_t key[16] = "Thats my Kung Fu";
-
     uint8_t result_enc[BLOCK_SIZE] = {0};
     uint8_t result_dec[BLOCK_SIZE] = {0};
     uint8_t block[BLOCK_SIZE] = "Two One Nine Two" "Two One Nine Two";
