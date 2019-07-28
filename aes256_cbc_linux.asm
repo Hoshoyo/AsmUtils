@@ -1,8 +1,8 @@
 ; Arguments in the x64-86 calling convention for linux (in order):
 ; RCX -> RDI
 ; RDX -> RSI
-; R8  -> RCX
-; R9  -> RDX
+; R8  -> RDX
+; R9  -> RCX
 ; STACK1 -> R8
 
 global aes_calculate_keys
@@ -124,13 +124,13 @@ gen_key_b:
 aes_256_cbc_encrypt:
     ; Encrypt
 	mov r11, rcx
-	mov ecx, r9
+	mov ecx, r8d
 	
     ; Keys are returned in the registers xmm1-xmm11
     call aes_calculate_keys
 	
 	movdqu xmm14, [rsi] ; First 16 bytes of the key
-	movdqu xmm15, [r11]	; IV
+	movdqu xmm15, [rdx]	; IV
 	
 	xor rax, rax
 start_aes_enc:
@@ -158,7 +158,7 @@ start_aes_enc:
     aesenclast xmm0, xmm13  ; Round 12
 
     ; End -> write the result in the r8 pointer
-    movdqu [rdx + rax], xmm0
+    movdqu [r11 + rax], xmm0
 	
 	movdqu xmm15, xmm0
 
@@ -175,7 +175,7 @@ aes_256_cbc_decrypt:
 	push rbp
 	mov rbp, rsp
 	sub rsp, 32 ; allocate memory for iv which will be on [rsp] and block which will be on [rsp + 16]
-	movdqu xmm0, [r11]
+	movdqu xmm0, [rdx]
 	movdqu [rsp], xmm0 ; save iv
 
     ; Keys are returned in the registers xmm1-xmm13
@@ -233,11 +233,11 @@ start_aes_dec:
 	movdqu [rsp], xmm15
 	
 	; End -> write the result
-    movdqu [rdx + rax], xmm0
+    movdqu [r11 + rax], xmm0
 	
     add rax, 16
-	dec r9d
-	cmp r9d, 0
+	dec r8d
+	cmp r8d, 0
 	jne start_aes_dec
 
 	; epilog
